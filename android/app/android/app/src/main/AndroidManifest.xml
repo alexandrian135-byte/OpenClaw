@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <application
         android:allowBackup="true"
         android:label="Claw Engine"
@@ -11,7 +8,7 @@
         android:hasCode="true">
 
         <activity
-            android:name="org.libsdl.app.SDLActivity"
+            android:name="com.openclaw.game.MainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode"
             android:exported="true">
 
@@ -21,6 +18,5 @@
             </intent-filter>
 
         </activity>
-
     </application>
 </manifest>
