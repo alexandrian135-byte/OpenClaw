@@ -1,43 +1,125 @@
-name: Build Android 15 APK 64bit
+name: Build Android 15 64bit
+
 on:
   push:
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup-java@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
-          
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        
-      - name: Setup Android NDK
+          java-version: '17'
+
+      - name: Setup Android SDK manually
+        shell: bash
         run: |
-          sdkmanager --install "ndk;27.0.12077973" "platforms;android-35" "build-tools;35.0.0"
-          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.0.12077973" >> $GITHUB_ENV
-          
-      - name: Build 64bit for Android 15
+          set -e
+
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+
+          mkdir -p "$SDK_ROOT"
+
+          SDKMANAGER=$(find "$SDK_ROOT/cmdline-tools" \
+            -type f -name sdkmanager 2>/dev/null | sort -V | tail -n 1)
+
+          if [ -z "$SDKMANAGER" ]; then
+            echo "Downloading Android command line tools..."
+
+            mkdir -p "$SDK_ROOT/cmdline-tools"
+
+            cd "$RUNNER_TEMP"
+
+            wget -q \
+              https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip \
+              -O android-tools.zip
+
+            mkdir -p android-tools
+            unzip -q android-tools.zip -d android-tools
+
+            mkdir -p "$SDK_ROOT/cmdline-tools/latest"
+
+            cp -r android-tools/cmdline-tools/. \
+              "$SDK_ROOT/cmdline-tools/latest/"
+
+            SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          fi
+
+          chmod +x "$SDKMANAGER"
+
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT"
+
+          yes | "$SDKMANAGER" \
+            --sdk_root="$SDK_ROOT" --licenses >/dev/null || true
+
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" \
+            --install \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0" \
+            "ndk;27.0.12077973" \
+            "cmake;3.22.1"
+
+          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+          echo "$SDK_ROOT/cmake/3.22.1/bin" >> "$GITHUB_PATH"
+
+          echo "ANDROID_NDK_HOME=$SDK_ROOT/ndk/27.0.12077973" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_ROOT=$SDK_ROOT/ndk/27.0.12077973" >> "$GITHUB_ENV"
+
+      - name: Verify Android Tools
         run: |
-          echo "=== ClawLauncher ==="
-          ls -la ClawLauncher/
-          cat CMakeLists.txt
+          java -version
+          cmake --version
+          echo "NDK:"
+          ls "$ANDROID_NDK_HOME"
+
+      - name: Build OpenClaw for Android 15
+        shell: bash
+        run: |
+          set -e
+
           mkdir -p build_android
           cd build_android
+
           cmake .. \
-            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+            -DAndroid=ON \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=arm64-v8a \
             -DANDROID_PLATFORM=android-35 \
             -DCMAKE_BUILD_TYPE=Release \
             -DANDROID_STL=c++_shared
-          cmake --build . --config Release -- -j$(nproc)
-          
+
+          cmake --build . --config Release --parallel "$(nproc)"
+
+      - name: Collect Native Libraries
+        run: |
+          mkdir -p output
+
+          find . \
+            -type f -name "*.so" \
+            -not -path "./output/*" \
+            -exec cp {} output/ \;
+
+          if [ -z "$(find output -name '*.so' -print -quit)" ]; then
+            echo "ERROR: No Android native libraries found!"
+            exit 1
+          fi
+
+          ls -lh output/
+
       - name: Upload Build
         uses: actions/upload-artifact@v4
         with:
           name: OpenClaw-Android15-arm64-v8a
-          path: build_android/
+          path: output/*.so
+          if-no-files-found: error
