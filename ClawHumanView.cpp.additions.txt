@@ -1,0 +1,12 @@
+// Include SDL event constants if not already visible through project headers.
+// At the beginning of ClawHumanView::VOnEvent, before HumanView::VOnEvent(event):
+if (event.type == SDL_USEREVENT && event.user.code == 0x8000 && m_pActorController)
+{
+    int action = (int)(intptr_t)event.user.data1;
+    bool pressed = ((intptr_t)event.user.data2) != 0;
+    Uint32 packed = event.user.timestamp;
+    float x = (short)(packed & 0xffff) / 1000.0f;
+    float y = (short)((packed >> 16) & 0xffff) / 1000.0f;
+    m_pActorController->OnCustomOverlayAction(action, pressed, x, y);
+    return true;
+}

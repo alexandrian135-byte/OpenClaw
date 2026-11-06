@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "coordinateSystem": "normalized_0_1_center",
+  "buttons": [
+    {
+      "id": "move",
+      "image": "joystick.png",
+      "x": 0.16,
+      "y": 0.76,
+      "size": 0.27,
+      "action": "MOVE",
+      "mode": "joystick"
+    },
+    {
+      "id": "jump",
+      "image": "jump.png",
+      "x": 0.8,
+      "y": 0.77,
+      "size": 0.15,
+      "action": "JUMP",
+      "mode": "button"
+    },
+    {
+      "id": "attack",
+      "image": "attack.png",
+      "x": 0.91,
+      "y": 0.57,
+      "size": 0.15,
+      "action": "ATTACK",
+      "mode": "button"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+# Add native/TouchOverlayJni.cpp to the openclaw shared library sources.
+# If OpenClaw is a subdirectory target, add the source using:
+target_sources(openclaw PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../native/TouchOverlayJni.cpp)
