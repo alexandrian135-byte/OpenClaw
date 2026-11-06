@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.2)
 
 target_compile_definitions(openclaw PRIVATE SDL_MAIN_HANDLED)
@@ -10,6 +11,7 @@ target_compile_definitions(openclaw PRIVATE SDL_MAIN_HANDLED)
 target_sources(openclaw
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/ActorController.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/TouchOverlayEvent.h
     ${CMAKE_CURRENT_SOURCE_DIR}/ClawEvents.h
     ${CMAKE_CURRENT_SOURCE_DIR}/ClawGameApp.h
     ${CMAKE_CURRENT_SOURCE_DIR}/ClawGameLogic.h
@@ -21,5 +23,12 @@ target_sources(openclaw
     ${CMAKE_CURRENT_SOURCE_DIR}/ClawHumanView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
+
+# Android touch overlay JNI bridge
+if(Android)
+    target_sources(openclaw PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/../native/TouchOverlayJni.cpp
+    )
+endif()
 
 add_subdirectory(Engine)
