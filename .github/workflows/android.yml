@@ -1,3 +1,4 @@
+
 name: Build Android 15 APK 64bit
 
 on: workflow_dispatch
@@ -14,7 +15,8 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - uses: gradle/actions/setup-gradle@v4
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.2'
 
@@ -26,11 +28,10 @@ jobs:
 
       - name: Build ARM64 APK
         run: |
-          gradle -p android wrapper --gradle-version 8.2
-          cd android
-          ./gradlew assembleArm64Debug
+          gradle -p android :app:assembleDebug
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          name: apk
-          path: android/app/build/outputs/apk/arm64/debug/*.apk
+          name: ClawEngine-ARM64-APK
+          path: android/app/build/outputs/apk/debug/*.apk
