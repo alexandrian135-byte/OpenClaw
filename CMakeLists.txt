@@ -31,15 +31,26 @@ if(WIN32)
     add_subdirectory(MidiProc)
 endif()
 
-include_directories(
-    ./Box2D/
-    ./libwap/
-    ./ThirdParty/
-    ./ThirdParty/Tinyxml/
-)
+# Keep legacy ThirdParty headers out of Android builds.
+if(Android)
+    include_directories(
+        ./Box2D/
+        ./libwap/
+        ./ThirdParty/Tinyxml/
+    )
+else()
+    include_directories(
+        ./Box2D/
+        ./libwap/
+        ./ThirdParty/
+        ./ThirdParty/Tinyxml/
+    )
+endif()
 
 if(Emscripten)
-    include_directories("${EMSCRIPTEN_PATH}/upstream/emscripten/system/include/emscripten/")
+    include_directories(
+        "${EMSCRIPTEN_PATH}/upstream/emscripten/system/include/emscripten/"
+    )
 endif()
 
 link_directories(
