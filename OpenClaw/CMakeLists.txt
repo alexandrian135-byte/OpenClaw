@@ -1,5 +1,9 @@
 
 cmake_minimum_required(VERSION 3.2)
+cmake_policy(SET CMP0057 NEW)
+
+# Build options
+option(Android "Android" OFF)
 
 target_compile_definitions(openclaw PRIVATE SDL_MAIN_HANDLED)
 
