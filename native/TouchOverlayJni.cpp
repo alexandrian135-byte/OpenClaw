@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <cstring>
 #include <new>
-#include "../OpenClaw/TouchOverlayEvent.h"
+#include "../OpenClaw/OpenClaw/TouchOverlayEvent.h"
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_openclaw_game_NativeTouchBridge_nativeTouchAction(
