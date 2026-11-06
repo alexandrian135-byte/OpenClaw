@@ -20,7 +20,50 @@ if(Android)
         message(FATAL_ERROR "SDL2 source is missing: android/sdl2")
     endif()
 
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/android/SDL_mixer/CMakeLists.txt")
+        message(FATAL_ERROR "SDL2_mixer source is missing: android/SDL_mixer")
+    endif()
+
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/android/SDL_ttf/CMakeLists.txt")
+        message(FATAL_ERROR "SDL2_ttf source is missing: android/SDL_ttf")
+    endif()
+
     add_subdirectory(android/sdl2)
+
+    # Build SDL add-on libraries as static libraries.
+    set(BUILD_SHARED_LIBS OFF)
+
+    set(SDL2MIXER_VENDORED ON CACHE BOOL "" FORCE)
+    set(SDL2MIXER_DEPS_SHARED OFF CACHE BOOL "" FORCE)
+    set(SDL2MIXER_SAMPLES OFF CACHE BOOL "" FORCE)
+    set(SDL2MIXER_CMD OFF CACHE BOOL "" FORCE)
+
+    add_subdirectory(android/SDL_mixer)
+
+    set(SDL2TTF_VENDORED ON CACHE BOOL "" FORCE)
+    set(SDL2TTF_SAMPLES OFF CACHE BOOL "" FORCE)
+    set(SDL2TTF_HARFBUZZ OFF CACHE BOOL "" FORCE)
+
+    add_subdirectory(android/SDL_ttf)
+
+    # Compatibility headers for the existing SDL2/... include paths.
+    set(SDL_COMPAT_INCLUDE
+        "${CMAKE_CURRENT_BINARY_DIR}/sdl-addon-headers"
+    )
+
+    file(MAKE_DIRECTORY "${SDL_COMPAT_INCLUDE}/SDL2")
+
+    file(WRITE
+        "${SDL_COMPAT_INCLUDE}/SDL2/SDL_mixer.h"
+        "#include <SDL_mixer.h>\n"
+    )
+
+    file(WRITE
+        "${SDL_COMPAT_INCLUDE}/SDL2/SDL_ttf.h"
+        "#include <SDL_ttf.h>\n"
+    )
+
+    include_directories("${SDL_COMPAT_INCLUDE}")
 endif()
 
 add_subdirectory(Box2D)
@@ -88,6 +131,8 @@ list(APPEND TARGET_LIBS
 if(Android)
     list(APPEND TARGET_LIBS
         SDL2-static
+        SDL2_mixer
+        SDL2_ttf
         GLESv2
         GLESv1_CM
         dl
