@@ -63,11 +63,16 @@ jobs:
           cp -R android/sdl2/android-project/app/src/main/java/org/libsdl/app \
             android/app/src/main/java/org/libsdl/
 
+      - name: Remove Unused SDL Gradle Wrapper
+        run: |
+          rm -f android/sdl2/android-project/gradle/wrapper/gradle-wrapper.jar
+
       - name: Verify Dependencies
         run: |
           test -f android/sdl2/CMakeLists.txt
           test -f android/SDL_mixer/CMakeLists.txt
           test -f android/SDL_ttf/CMakeLists.txt
+          test ! -f android/sdl2/android-project/gradle/wrapper/gradle-wrapper.jar
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
