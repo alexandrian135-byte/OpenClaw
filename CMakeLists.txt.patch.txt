@@ -1,0 +1,4 @@
+مكان الربط الصحيح:
+الإضافة تكون داخل OpenClaw/CMakeLists.txt وليس في الجذر، لأن ملف OpenClaw/CMakeLists.txt هو الذي يضيف مصادر الهدف openclaw.
+أضف TouchOverlayEvent.h إلى target_sources، ثم ألحق شرط Android الذي يضيف ../native/TouchOverlayJni.cpp.
+لا تستخدم سطر CMakeLists.txt.additions.txt القديم الذي كان يضيف الملف من مسار غير مطابق.

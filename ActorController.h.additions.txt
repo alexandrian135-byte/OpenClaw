@@ -1,7 +1,5 @@
-// Add to ActorController public section:
+// Add public method:
 void OnCustomOverlayAction(int action, bool pressed, float x, float y);
-
-// Add to private section:
+// Add private members:
 float m_OverlayMoveX = 0.0f;
 float m_OverlayMoveY = 0.0f;
-bool m_OverlayJump = false;

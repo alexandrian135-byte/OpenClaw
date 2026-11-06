@@ -1,23 +1,20 @@
-// Add this method. MOVE is analog; JUMP uses SPACE; ATTACK triggers existing game event.
+// Add method:
 void ActorController::OnCustomOverlayAction(int action, bool pressed, float x, float y)
 {
-    switch (action)
-    {
-        case 1: // MOVE
-            m_OverlayMoveX = pressed ? x : 0.0f;
-            m_OverlayMoveY = pressed ? y : 0.0f;
-            break;
-        case 2: // JUMP
-            m_OverlayJump = pressed;
-            m_InputKeys[SDLK_SPACE] = pressed;
-            break;
-        case 3: // ATTACK
-            if (pressed) HandleAction(ActionType_Attack);
-            break;
+    switch (action) {
+    case 1: // MOVE
+        m_OverlayMoveX = pressed ? std::max(-1.0f, std::min(1.0f, x)) : 0.0f;
+        m_OverlayMoveY = pressed ? std::max(-1.0f, std::min(1.0f, y)) : 0.0f;
+        break;
+    case 2: // JUMP
+        m_InputKeys[SDLK_SPACE] = pressed;
+        break;
+    case 3: // ATTACK
+        if (pressed) HandleAction(ActionType_Attack);
+        break;
     }
 }
-
-// In OnUpdate(), after the existing keyboard moveX/moveY calculations and before
-// the "if (fabs(climbY)" block, add:
+// In constructor initialize m_OverlayMoveX and m_OverlayMoveY to 0.
+// In OnUpdate(), after keyboard movement calculations and before climbY is tested:
 moveX += m_OverlayMoveX * m_Speed * (float)msDiff;
-moveY += m_OverlayMoveY * m_Speed * (float)msDiff;
+climbY += m_OverlayMoveY * 5.0f;

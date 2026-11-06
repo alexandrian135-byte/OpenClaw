@@ -1,0 +1,10 @@
+هذه حزمة ربط مع ملفات المشروع الأصلي، وليست APK جاهزًا.
+
+1) أضف TouchOverlayEvent.h إلى OpenClaw/.
+2) أضف native/TouchOverlayJni.cpp إلى جذر المستودع.
+3) عدّل OpenClaw/ActorController.h و.cpp بالإضافات المرفقة.
+4) عدّل OpenClaw/ClawHumanView.cpp بالإضافات المرفقة، وضع استقبال الحدث في أول VOnEvent قبل HumanView::VOnEvent.
+5) عدّل OpenClaw/CMakeLists.txt بالإضافات المرفقة لإضافة مصدر JNI عند Android.
+6) يجب وضع TouchOverlayView فوق SDL view داخل Android Activity، وربط NativeTouchBridge، ونسخ Assets/ControlsCustom إلى assets/ControlsCustom.
+
+تنبيه: لم يتم بناء المشروع أو اختبار APK. ملفات الإضافات موضحة بدقة لكنها ليست ملفات C++ كاملة بديلة؛ دمجها مع الملفات الأصلية مطلوب. هذا مقصود لتجنب استبدال ملفات المشروع بنسخ مبتورة.
