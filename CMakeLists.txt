@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.22.1)
 
 project(OpenClaw)
@@ -11,8 +10,9 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(Android)
-    set(SDL_SHARED OFF CACHE BOOL "" FORCE)
-    set(SDL_STATIC ON CACHE BOOL "" FORCE)
+    # Build SDL2 as a shared library for SDLActivity.
+    set(SDL_SHARED ON CACHE BOOL "" FORCE)
+    set(SDL_STATIC OFF CACHE BOOL "" FORCE)
     set(SDL_TEST OFF CACHE BOOL "" FORCE)
     set(SDL_TESTS OFF CACHE BOOL "" FORCE)
 
@@ -30,9 +30,10 @@ if(Android)
 
     add_subdirectory(android/sdl2)
 
-    # Build SDL add-on libraries as static libraries.
-    set(BUILD_SHARED_LIBS OFF)
+    # Build SDL addons as shared libraries linked to shared SDL2.
+    set(BUILD_SHARED_LIBS ON)
 
+    set(SDL2MIXER_BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
     set(SDL2MIXER_VENDORED ON CACHE BOOL "" FORCE)
     set(SDL2MIXER_DEPS_SHARED OFF CACHE BOOL "" FORCE)
     set(SDL2MIXER_SAMPLES OFF CACHE BOOL "" FORCE)
@@ -40,13 +41,14 @@ if(Android)
 
     add_subdirectory(android/SDL_mixer)
 
+    set(SDL2TTF_BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
     set(SDL2TTF_VENDORED ON CACHE BOOL "" FORCE)
     set(SDL2TTF_SAMPLES OFF CACHE BOOL "" FORCE)
     set(SDL2TTF_HARFBUZZ OFF CACHE BOOL "" FORCE)
 
     add_subdirectory(android/SDL_ttf)
 
-    # Compatibility headers for the existing SDL2/... include paths.
+    # Compatibility headers for existing SDL2/... include paths.
     set(SDL_COMPAT_INCLUDE
         "${CMAKE_CURRENT_BINARY_DIR}/sdl-addon-headers"
     )
@@ -130,7 +132,7 @@ list(APPEND TARGET_LIBS
 
 if(Android)
     list(APPEND TARGET_LIBS
-        SDL2-static
+        SDL2
         SDL2_mixer
         SDL2_ttf
         GLESv2
