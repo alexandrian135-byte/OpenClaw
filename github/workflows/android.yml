@@ -1,0 +1,66 @@
+name: Build Android 15 APK 64bit
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout OpenClaw
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.2'
+
+      - name: Download SDL2
+        run: |
+          git clone --depth 1 --branch release-2.30.11 \
+            https://github.com/libsdl-org/SDL.git android/sdl2
+
+      - name: Download SDL2_mixer
+        run: |
+          git clone --depth 1 --recurse-submodules \
+            --branch release-2.8.1 \
+            https://github.com/libsdl-org/SDL_mixer.git android/SDL_mixer
+
+      - name: Download SDL2_ttf
+        run: |
+          git clone --depth 1 --recurse-submodules \
+            --branch release-2.22.0 \
+            https://github.com/libsdl-org/SDL_ttf.git android/SDL_ttf
+
+      - name: Prepare SDL Android Java
+        run: |
+          mkdir -p android/app/src/main/java/org/libsdl
+          cp -R android/sdl2/android-project/app/src/main/java/org/libsdl/app \
+            android/app/src/main/java/org/libsdl/
+
+      - name: Verify SDL libraries
+        run: |
+          test -f android/sdl2/CMakeLists.txt
+          test -f android/SDL_mixer/CMakeLists.txt
+          test -f android/SDL_ttf/CMakeLists.txt
+          echo "SDL2 libraries downloaded successfully"
+
+      - name: Build ARM64 APK
+        run: |
+          gradle -p android :app:assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ClawEngine-ARM64-APK
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
