@@ -1,8 +1,13 @@
+
 #include "ClawHumanView.h"
 #include "ClawGameLogic.h"
 #include "ActorController.h"
+#include "TouchOverlayEvent.h"
 #include "Engine/UserInterface/GameHUD.h"
 #include "Engine/Resource/Loaders/XmlLoader.h"
+
+#include <cstdint>
+#include <memory>
 
 //---------------------------------------------------------------------------------------------------------------------
 // ClawHumanView
@@ -33,11 +38,37 @@ ClawHumanView::~ClawHumanView()
 
 bool ClawHumanView::VOnEvent(SDL_Event& event)
 {
+    // Handle custom touch overlay events before normal SDL events.
+    if (event.type == SDL_USEREVENT &&
+        event.user.code == OPENCLAW_TOUCH_OVERLAY_EVENT_CODE)
+    {
+        const int action = static_cast<int>(
+            reinterpret_cast<intptr_t>(event.user.data1)
+        );
+
+        OpenClawTouchPayload* raw =
+            static_cast<OpenClawTouchPayload*>(event.user.data2);
+
+        std::unique_ptr<OpenClawTouchPayload> payload(raw);
+
+        if (payload && m_pActorController)
+        {
+            m_pActorController->OnCustomOverlayAction(
+                action,
+                payload->pressed,
+                payload->x,
+                payload->y
+            );
+        }
+
+        return true;
+    }
+
     if (HumanView::VOnEvent(event))
     {
         return true;
     }
-    
+
     // Handle game specific events
     return false;
 }
