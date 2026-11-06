@@ -9,13 +9,12 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - name: Build APK
+      - name: Build
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
-      - name: Upload
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: OpenClaw-APK
+          name: apk
           path: android/app/build/outputs/apk/debug/*.apk
