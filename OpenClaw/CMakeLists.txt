@@ -11,7 +11,7 @@ target_compile_definitions(openclaw PRIVATE SDL_MAIN_HANDLED)
 target_sources(openclaw
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/ActorController.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/TouchOverlayEvent.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenClaw/TouchOverlayEvent.h
     ${CMAKE_CURRENT_SOURCE_DIR}/ClawEvents.h
     ${CMAKE_CURRENT_SOURCE_DIR}/ClawGameApp.h
     ${CMAKE_CURRENT_SOURCE_DIR}/ClawGameLogic.h
