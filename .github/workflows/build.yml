@@ -23,80 +23,6 @@ jobs:
         run: |
           set -e
 
-          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
-
-          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
-          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
-
-          mkdir -p "$SDK_ROOT"
-
-          SDKMANAGER=$(find "$SDK_ROOT/cmdline-tools" \
-            -type f -name sdkmanager 2>/dev/null | sort -V | tail -n 1)
-
-          if [ -z "$SDKMANAGER" ]; then
-            echo "Downloading Android command line tools..."
-
-            mkdir -p "$SDK_ROOT/cmdline-tools"
-
-            cd "$RUNNER_TEMP"
-
-            wget -q \
-              https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip \
-              -O android-tools.zip
-
-            mkdir -p android-tools
-            unzip -q android-tools.zip -d android-tools
-
-            mkdir -p "$SDK_ROOT/cmdline-tools/latest"
-
-            cp -r android-tools/cmdline-tools/. \
-              "$SDK_ROOT/cmdline-tools/latest/"
-
-            SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
-          fi
-
-          chmod +x "$SDKMANAGER"
-
-          echo "ANDROID_SDK_ROOT=$SDK_ROOT"
-
-          yes | "$SDKMANAGER" \
-            --sdk_root="$SDK_ROOT" --licenses >/dev/null || true
-
-          "$SDKMANAGER" --sdk_root="$SDK_ROOT" \
-            --install \
-            "platform-tools" \
-            "platforms;android-35" \
-            "build-tools;35.0.0" \
-            "ndk;27.0.12077973" \
-            "cmake;3.22.1"
-
-          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
-          echo "$SDK_ROOT/cmake/3.22.1/bin" >> "$GITHUB_PATH"
-name: Build Android 15 64bit
-
-on:
-  push:
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Setup Android SDK manually
-        shell: bash
-        run: |
-          set -e
-
           SDK_ROOT="$RUNNER_TEMP/android-sdk"
 
           mkdir -p "$SDK_ROOT/cmdline-tools"
@@ -172,30 +98,6 @@ jobs:
 
           find build_android \
             -type f -name "*.so" \
-            -exec cp {} output/ \;
-
-          if [ -z "$(find output -name '*.so' -print -quit)" ]; then
-            echo "ERROR: No Android native libraries found!"
-            exit 1
-          fi
-
-          ls -lh output/
-
-      - name: Upload Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: OpenClaw-Android15-arm64-v8a
-          path: output/*.so
-          if-no-files-found: error
- "$(nproc)"
-
-      - name: Collect Native Libraries
-        run: |
-          mkdir -p output
-
-          find . \
-            -type f -name "*.so" \
-            -not -path "./output/*" \
             -exec cp {} output/ \;
 
           if [ -z "$(find output -name '*.so' -print -quit)" ]; then
