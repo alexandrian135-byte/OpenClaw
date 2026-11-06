@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.22.1)
 
 project(OpenClaw)
@@ -76,11 +77,12 @@ if(WIN32)
     add_subdirectory(MidiProc)
 endif()
 
-# Keep legacy ThirdParty headers out of Android builds.
+# Include paths required by Android and desktop builds.
 if(Android)
     include_directories(
         ./Box2D/
         ./libwap/
+        ./ThirdParty/
         ./ThirdParty/Tinyxml/
     )
 else()
